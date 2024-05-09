@@ -1,0 +1,5 @@
+/.vscode
+/main
+/main.o
+/output
+/test_main.c
