@@ -1,0 +1,3 @@
+My code works ok for P4 for like half of the numbers, but what I really need is an extended euclidean :
+
+Even if theoretically you should be able to find the inverse of every number, the problem is I cannot guarantee that my remainder is decreasing, so I think that extended euclidean fixes the issue
