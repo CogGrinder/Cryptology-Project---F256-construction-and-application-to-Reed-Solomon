@@ -228,11 +228,11 @@ int main() {
     // here we define the modulus
     // X^8 is invisible because we can only represent up to X^7
     // P4
-    // uint8_t modulus_m = 0b00010001;
+    uint8_t modulus_m = 0b00010001;
     // P5
     // uint8_t modulus_m = 0b00011011;
     // P6
-    uint8_t modulus_m = 0b00011101;
+    // uint8_t modulus_m = 0b00011101;
 
     // P7
     // uint8_t modulus_m = 0b11111111;
