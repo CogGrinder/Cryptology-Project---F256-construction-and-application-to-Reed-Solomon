@@ -83,42 +83,34 @@ uint8_t inverse(uint8_t a, uint8_t m) {
 
 
 uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
-    if (b = 0) {
-        // beware, don't look for the inverse of 0
+    uint8_t q = 0;
+    uint8_t r = a;
+
+    if (b == 0) {
+        // beware edge case
         return 0;
-    } else if (b = 1) {
+    } else if (b == 1) {
         return a;
     } else {    
-        uint8_t r = a;
-        uint8_t q = 0;
-        uint8_t degree = degree(b);
+        int deg = degree(b);
 
         int x_power;
         // actually this assumes final r can only be degree 0
         // maybe change back to inversion
-        while (degree(r)=!0) {
-            if (degree(r)<degree) {
+        while (degree(r)!=0) {
+            if (degree(r)<deg) {
                 // here we add the modulus polynomial
                 // r now has a "virtual" MODULUS_DEGREE monomial
                 r = addition(r,m,m);
-                x_power = MODULUS_DEGREE-degree;
+                x_power = MODULUS_DEGREE-deg;
             } else {
-                x_power = degree(r)-degree;
+                x_power = degree(r)-deg;
             }
             q = addition(q,1<<x_power,m);
             r = substraction(r,mul_by_Xn(b,x_power,m),m);
         }
     }
-    
-    // maybe add m ??
-    // if (degree(a)<degree(b)) {
-    //     return 0;
-    // } else {
-    //     while (degree(r) >= degree(b)) {
-    //         r = substraction(r,b,m);
-    //         q = addition(q,1,m);
-    //     }
-    // }
+    return q;
 }
 
 
