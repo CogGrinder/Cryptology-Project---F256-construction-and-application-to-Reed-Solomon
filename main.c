@@ -55,6 +55,110 @@ uint8_t multiplication(uint8_t a, uint8_t b, uint8_t modulus) {
     return c;
 }
 
+int degree(uint8_t a) {
+    for (int i = 7; i >= 0; i--){
+        if (a & (1<<i)) {
+            return i;
+        }
+    }
+    return 0;
+}
+
+/*
+uint8_t inverse(uint8_t a, uint8_t m) {
+    if (a = 0) {
+        // beware, don't look for the inverse of 0
+        return 0;
+    } else {
+        // r is set to 1 because we are dividing 1
+        uint8_t r = 1;
+        uint8_t q = 0;
+        
+        uint8_t degree = degree(a);
+    }
+}
+*/
+
+
+
+uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
+    if (b = 0) {
+        // beware, don't look for the inverse of 0
+        return 0;
+    }{    
+        uint8_t r = a;
+        uint8_t q = 0;
+        uint8_t degree = degree(b);
+
+
+        // actually this assumes final r can only be degree 0
+        // maybe change back to inversion
+        while (degree(r)=!0) {
+            if (degree(r)) {
+
+            } else {
+
+            }
+            r = mul_by_Xn(r,degree,m);
+        }
+    }
+    
+    // maybe add m ??
+    // if (degree(a)<degree(b)) {
+    //     return 0;
+    // } else {
+    //     while (degree(r) >= degree(b)) {
+    //         r = substraction(r,b,m);
+    //         q = addition(q,1,m);
+    //     }
+    // }
+}
+
+
+/*
+uint8_t* extended_euclidean(uint8_t a, uint8_t b, uint8_t m) {
+    // warning: a needs to be bigger than b
+    // because they are r0 and r1
+    // and rn is decreasing in degree
+    if (degree(a)<degree(b)) {
+        // switch a and b, old and new
+        temp = a;    a = b;        b = temp;
+        temp = s_old;s_old = s_new;s_new = temp;
+        temp = t_old;t_old = t_new;t_new = temp;
+    }
+
+    uint8_t s_old=1;
+    uint8_t t_old=0;
+
+    uint8_t s_new=0;
+    uint8_t t_new=1;
+
+    uint9_t temp;
+
+    while (b != 0) {
+        // q is a//b
+        uint8_t q = euclidean_division(a,b,m);
+        temp = b;
+        // after this step, new b is smaller than old b
+        b = substraction(b,multiplication(q,a,m),m);
+        // a becomes b
+        a = temp;
+
+        // same with s and t
+        temp = s_new;
+        s_new = substraction(s_old,multiplication(q,s_new,m),m);
+        s_old = temp;
+        temp = t_new;
+        t_new = substraction(t_old,multiplication(q,t_new,m),m);
+        t_old = temp;
+    
+    uint8_t* ret = malloc(sizeof(uint8_t)*3);
+    ret = {b,s_new,t_new};
+    return ret;
+    }
+}
+*/
+
 void display_poly(uint8_t a) {
     for (int i = 7; i >= 1; i--)
     {
