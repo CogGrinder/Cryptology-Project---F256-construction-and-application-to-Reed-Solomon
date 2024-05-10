@@ -96,6 +96,7 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
         int deg = degree(b);
 
         int x_power;
+        uint8_t b_shifted;
         // actually this assumes final r can only be degree 0
         // maybe change back to inversion
         int i=0;
@@ -115,7 +116,11 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
             display_poly(q);
 
             q = addition(q,1<<x_power,m);
-            r = substraction(r,mul_by_Xn(b,x_power,m),m);
+            b_shifted = mul_by_Xn(b,x_power,m);
+            printf("B shifted:\n");
+            display_poly(b_shifted);
+            
+            r = substraction(r,b_shifted,m);
             
             printf("Q after:\n");
             display_poly(q);
@@ -124,7 +129,11 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
 
             i++;
         }
+        if (i>=4 && degree(r)!=0) {
+            printf("\n*** DIVISION FAILED ***\n\n");
+        }
     }
+
     return q;
 }
 
@@ -194,6 +203,7 @@ int main() {
     // here we define the modulus X^8 + X^4 + 1
     // X^8 is invisible because we can only represent up to X^7
     uint8_t modulus_m = 0x11;
+    // TODO change modulus
 
     time_t begin;
     time_t end;
@@ -213,7 +223,7 @@ int main() {
     display_poly(a);
     printf("Polynomial b :\n");
     display_poly(b);
-
+    /*
     printf("Polynomial a+b :\n");
     display_poly(addition(a,b,modulus_m));
     
@@ -223,7 +233,7 @@ int main() {
     display_poly(multiplication(a,a,modulus_m));
     printf("Polynomial b*b :\n");
     display_poly(multiplication(b,b,modulus_m));
-
+    */
     printf("Polynomial a/b :\n");
     uint8_t q = euclidean_division(a,b,modulus_m);
     display_poly(q);
