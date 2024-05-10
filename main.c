@@ -6,6 +6,7 @@
 
 #define F256_SIZE sizeof(uint8_t)
 #define MODULUS_DEGREE 8
+#define DEBUG_ITERMAX 10
 void display_poly(uint8_t a);
 
 uint8_t random_256(int seed){
@@ -100,7 +101,7 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
         // actually this assumes final r can only be degree 0
         // maybe change back to inversion
         int i=0;
-        while (degree(r)!=0 && i<4) {
+        while (r!=0 && i<DEBUG_ITERMAX) {
             if (degree(r)<deg) {
                 // here we add the modulus polynomial
                 // r now has a "virtual" MODULUS_DEGREE monomial
@@ -112,25 +113,25 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
                 x_power = degree(r)-deg;
             }
 
-            printf("Q before:\n");
-            display_poly(q);
-
             q = addition(q,1<<x_power,m);
             b_shifted = mul_by_Xn(b,x_power,m);
             printf("B shifted:\n");
             display_poly(b_shifted);
-            
-            r = substraction(r,b_shifted,m);
-            
             printf("Q after:\n");
             display_poly(q);
-            printf("R:\n");
+
+            printf("R before:\n");
+            display_poly(r);
+            r = substraction(r,b_shifted,m);
+            printf("R after:\n");
             display_poly(r);
 
             i++;
         }
-        if (i>=4 && degree(r)!=0) {
+        if (i>=DEBUG_ITERMAX && degree(r)!=0) {
             printf("\n*** DIVISION FAILED ***\n\n");
+        } else {
+            printf("\n*** DIVISION SUCCESS ***\n\n");
         }
     }
 
@@ -215,8 +216,13 @@ int main() {
     printf("Modulus is X^8 plus:\n");
     display_poly(modulus_m);
 
-    uint8_t a = 0b00001000;
-    uint8_t b = 0b00100000;
+    // uint8_t a = 0b00001000; // doesn't work
+    // uint8_t a = 0b00000011; // works
+    uint8_t a = 0b00000101; // works
+
+    uint8_t b = 0b1;
+    // uint8_t b = 0b00100000;
+    
     // uint8_t a = random_256(0);
     // uint8_t b = random_256(1);
     printf("Polynomial a :\n");
@@ -234,6 +240,7 @@ int main() {
     printf("Polynomial b*b :\n");
     display_poly(multiplication(b,b,modulus_m));
     */
+   
     printf("Polynomial a/b :\n");
     uint8_t q = euclidean_division(a,b,modulus_m);
     display_poly(q);
@@ -243,7 +250,7 @@ int main() {
     printf("Polynomial b/a :\n");
     q = euclidean_division(b,a,modulus_m);
     display_poly(q);
-    printf("Polynomial b/a*a :\n");
+    printf("Polynomial b/a*a :\n"); // doesn't work
     display_poly(multiplication(q,a,modulus_m));
     
     // printf("Sum :");
