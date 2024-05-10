@@ -236,11 +236,15 @@ int main() {
 
     // P7
     // uint8_t modulus_m = 0b11111111;
+    // P8
+    // uint8_t modulus_m = 0b00000001;
     
     
     // TODO change modulus
-    // for (int i = 0; i < 5; i++)
-    // {
+    // uint8_t a = 0b00000001; //increment from here 1
+    uint8_t a = 0b00001010; //increment from here 2
+    for (int i = 0; i < 10; i++)
+    {
 
     
     time_t begin;
@@ -254,10 +258,27 @@ int main() {
     display_poly(modulus_m);
 
     // uint8_t a = random_256(i);
-    // uint8_t a = 0b00001000; // works with P4
+    // uint8_t a = 0b00001000; // works with P4 and P8
     // uint8_t a = 0b00000011; // works
     // uint8_t a = 0b00000101; // works
-    uint8_t a = 0b01111111; // doesn't work P4
+    // uint8_t a = 0b00000111; // fails with P4
+    // uint8_t a = 0b00001000; // works with P4
+    // uint8_t a = 0b00001001; // fails with P4
+
+    // uint8_t a = 0b00001010; // works with P4
+    // uint8_t a = 0b00001011; // fails with P4
+    // uint8_t a = 0b00001100; // works with P4
+    // uint8_t a = 0b00001101; // fails with P4
+    // uint8_t a = 0b00001110; // fails with P4
+    // uint8_t a = 0b00001111; // works with P4
+    // uint8_t a = 0b00010000; // works with P4
+    // uint8_t a = 0b00010001; // works with P4
+    // uint8_t a = 0b00010010; // fails here with P4
+
+
+    // uint8_t a = 0b01111111; // doesn't work P4 & P8, reverts back by canceling out
+    // uint8_t a = 0b11000111; // doesn't work P4, reverts back by canceling out
+    // uint8_t a = 0b11010101; // doesn't work P4, reverts back by canceling out
 
 
     uint8_t b = 0b1;
@@ -295,12 +316,11 @@ int main() {
     printf("Polynomial b/a*a :\n"); // doesn't work
     display_poly(multiplication(q,a,modulus_m));
     
-    // printf("Sum :");
-
     time(&end);
 
     // free();
 
     printf("\nCompute time: %lds\n\n\n", end-begin);
-    // }
+    a++;
+    }
 }
