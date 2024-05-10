@@ -98,14 +98,17 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
 
         int x_power;
         uint8_t b_shifted;
+        bool x8_monomial = false;
         // actually this assumes final r can only be degree 0
         // maybe change back to inversion
         int i=0;
         while (r!=0 && i<DEBUG_ITERMAX) {
             if (degree(r)<deg) {
                 // here we add the modulus polynomial
-                // r now has a "virtual" MODULUS_DEGREE monomial
                 r = addition(r,m,m);
+                // r now has a "virtual" MODULUS_DEGREE monomial
+                x8_monomial = true;
+
                 x_power = MODULUS_DEGREE-deg;
                 printf("new R: X^8 + \n");
                 display_poly(r);
@@ -114,21 +117,31 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
             }
 
             q = addition(q,1<<x_power,m);
+            printf("B, shift=%d:\n",x_power);
+            display_poly(b);
             b_shifted = mul_by_Xn(b,x_power,m);
             printf("B shifted:\n");
             display_poly(b_shifted);
             printf("Q after:\n");
             display_poly(q);
 
-            printf("R before:\n");
-            display_poly(r);
+            // printf("R before:\n");
+            // display_poly(r);
+            
+            // add back modulus to r to cancel "virtual" monomial
+            if (x8_monomial) {
+                printf("Removing X^8...\n");
+                r = substraction(r,m,m);
+                x8_monomial = false;
+            }
             r = substraction(r,b_shifted,m);
             printf("R after:\n");
             display_poly(r);
 
+            // reset the "virtual" monomial
             i++;
         }
-        if (i>=DEBUG_ITERMAX && degree(r)!=0) {
+        if (i>=DEBUG_ITERMAX && r!=0) {
             printf("\n*** DIVISION FAILED ***\n\n");
         } else {
             printf("\n*** DIVISION SUCCESS ***\n\n");
@@ -201,9 +214,19 @@ void display_poly(uint8_t a) {
 }
 
 int main() {
-    // here we define the modulus X^8 + X^4 + 1
+    // here we define the modulus
     // X^8 is invisible because we can only represent up to X^7
-    uint8_t modulus_m = 0x11;
+    // P4
+    // uint8_t modulus_m = 0b00010001;
+    // P5
+    // uint8_t modulus_m = 0b00011011;
+    // P6
+    uint8_t modulus_m = 0b00011101;
+
+    // P7
+    // uint8_t modulus_m = 0b11111111;
+    
+    
     // TODO change modulus
 
     time_t begin;
@@ -216,15 +239,17 @@ int main() {
     printf("Modulus is X^8 plus:\n");
     display_poly(modulus_m);
 
-    // uint8_t a = 0b00001000; // doesn't work
+    uint8_t a = 0b00001000; // doesn't work
     // uint8_t a = 0b00000011; // works
-    uint8_t a = 0b00000101; // works
+    // uint8_t a = 0b00000101; // works
 
     uint8_t b = 0b1;
     // uint8_t b = 0b00100000;
     
     // uint8_t a = random_256(0);
     // uint8_t b = random_256(1);
+    uint8_t q;
+
     printf("Polynomial a :\n");
     display_poly(a);
     printf("Polynomial b :\n");
@@ -241,11 +266,11 @@ int main() {
     display_poly(multiplication(b,b,modulus_m));
     */
    
-    printf("Polynomial a/b :\n");
-    uint8_t q = euclidean_division(a,b,modulus_m);
-    display_poly(q);
-    printf("Polynomial a/b*b :\n");
-    display_poly(multiplication(q,b,modulus_m));
+    // printf("Polynomial a/b :\n");
+    // q = euclidean_division(a,b,modulus_m);
+    // display_poly(q);
+    // printf("Polynomial a/b*b :\n");
+    // display_poly(multiplication(q,b,modulus_m));
 
     printf("Polynomial b/a :\n");
     q = euclidean_division(b,a,modulus_m);
