@@ -5,6 +5,7 @@
 #include <time.h>
 
 #define F256_SIZE sizeof(uint8_t)
+#define MODULUS_DEGREE 8
 
 uint8_t random_256(int seed){
     time_t random_time;
@@ -85,21 +86,27 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
     if (b = 0) {
         // beware, don't look for the inverse of 0
         return 0;
-    }{    
+    } else if (b = 1) {
+        return a;
+    } else {    
         uint8_t r = a;
         uint8_t q = 0;
         uint8_t degree = degree(b);
 
-
+        int x_power;
         // actually this assumes final r can only be degree 0
         // maybe change back to inversion
         while (degree(r)=!0) {
-            if (degree(r)) {
-
+            if (degree(r)<degree) {
+                // here we add the modulus polynomial
+                // r now has a "virtual" MODULUS_DEGREE monomial
+                r = addition(r,m,m);
+                x_power = MODULUS_DEGREE-degree;
             } else {
-
+                x_power = degree(r)-degree;
             }
-            r = mul_by_Xn(r,degree,m);
+            q = addition(q,1<<x_power,m);
+            r = substraction(r,mul_by_Xn(b,x_power,m),m);
         }
     }
     
