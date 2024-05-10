@@ -6,6 +6,7 @@
 
 #define F256_SIZE sizeof(uint8_t)
 #define MODULUS_DEGREE 8
+void display_poly(uint8_t a);
 
 uint8_t random_256(int seed){
     time_t random_time;
@@ -97,17 +98,31 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
         int x_power;
         // actually this assumes final r can only be degree 0
         // maybe change back to inversion
-        while (degree(r)!=0) {
+        int i=0;
+        while (degree(r)!=0 && i<4) {
             if (degree(r)<deg) {
                 // here we add the modulus polynomial
                 // r now has a "virtual" MODULUS_DEGREE monomial
                 r = addition(r,m,m);
                 x_power = MODULUS_DEGREE-deg;
+                printf("new R: X^8 + \n");
+                display_poly(r);
             } else {
                 x_power = degree(r)-deg;
             }
+
+            printf("Q before:\n");
+            display_poly(q);
+
             q = addition(q,1<<x_power,m);
             r = substraction(r,mul_by_Xn(b,x_power,m),m);
+            
+            printf("Q after:\n");
+            display_poly(q);
+            printf("R:\n");
+            display_poly(r);
+
+            i++;
         }
     }
     return q;
@@ -209,6 +224,17 @@ int main() {
     printf("Polynomial b*b :\n");
     display_poly(multiplication(b,b,modulus_m));
 
+    printf("Polynomial a/b :\n");
+    uint8_t q = euclidean_division(a,b,modulus_m);
+    display_poly(q);
+    printf("Polynomial a/b*b :\n");
+    display_poly(multiplication(q,b,modulus_m));
+
+    printf("Polynomial b/a :\n");
+    q = euclidean_division(b,a,modulus_m);
+    display_poly(q);
+    printf("Polynomial b/a*a :\n");
+    display_poly(multiplication(q,a,modulus_m));
     
     // printf("Sum :");
 
