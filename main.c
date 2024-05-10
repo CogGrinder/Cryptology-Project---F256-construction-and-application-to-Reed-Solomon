@@ -239,7 +239,10 @@ int main() {
     
     
     // TODO change modulus
+    // for (int i = 0; i < 5; i++)
+    // {
 
+    
     time_t begin;
     time_t end;
     printf("Press Enter for execution\n\n");
@@ -250,9 +253,12 @@ int main() {
     printf("Modulus is X^8 plus:\n");
     display_poly(modulus_m);
 
-    uint8_t a = 0b00001000; // doesn't work
+    // uint8_t a = random_256(i);
+    // uint8_t a = 0b00001000; // works with P4
     // uint8_t a = 0b00000011; // works
     // uint8_t a = 0b00000101; // works
+    uint8_t a = 0b01111111; // doesn't work P4
+
 
     uint8_t b = 0b1;
     // uint8_t b = 0b00100000;
@@ -296,4 +302,5 @@ int main() {
     // free();
 
     printf("\nCompute time: %lds\n\n\n", end-begin);
+    // }
 }
