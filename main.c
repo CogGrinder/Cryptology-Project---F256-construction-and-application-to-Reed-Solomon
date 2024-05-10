@@ -6,7 +6,7 @@
 
 #define F256_SIZE sizeof(uint8_t)
 #define MODULUS_DEGREE 8
-#define DEBUG_ITERMAX 10
+#define DEBUG_ITERMAX 30
 void display_poly(uint8_t a);
 
 uint8_t random_256(int seed){
@@ -102,7 +102,7 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
         // actually this assumes final r can only be degree 0
         // maybe change back to inversion
         int i=0;
-        while (r!=0 && i<DEBUG_ITERMAX) {
+        while (r!=0 && i<DEBUG_ITERMAX && (r!=1 || i<2)) {
             if (degree(r)<deg) {
                 // here we add the modulus polynomial
                 r = addition(r,m,m);
@@ -120,7 +120,11 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
             printf("B, shift=%d:\n",x_power);
             display_poly(b);
             b_shifted = mul_by_Xn(b,x_power,m);
-            printf("B shifted:\n");
+            printf("B shifted:");
+            if (x8_monomial) {
+                printf(" X^8 + \n");
+            }
+            printf("\n");
             display_poly(b_shifted);
             printf("Q after:\n");
             display_poly(q);
@@ -141,11 +145,18 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
             // reset the "virtual" monomial
             i++;
         }
-        if (i>=DEBUG_ITERMAX && r!=0) {
+        if (i>=DEBUG_ITERMAX || r==1) {
             printf("\n*** DIVISION FAILED ***\n\n");
+            if (r==1)  {
+                printf("\n*** CYCLE DETECTED AT ITER %d ***\n\n",i);
+            } else {
+                printf("\n*** MAX ITERATION ***\n\n");
+
+            }
         } else {
             printf("\n*** DIVISION SUCCESS ***\n\n");
         }
+        
     }
 
     return q;
