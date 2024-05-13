@@ -84,100 +84,56 @@ uint8_t inverse(uint8_t a, uint8_t m) {
 
 
 
-uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
-    uint8_t oldq = 0;
+uint64_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
     uint8_t q = 0;
     uint8_t r = a;
 
     if (b == 0) {
         // beware edge case
         return 0;
-    } else if (b == 1) {
-        return a;
     } else {    
-        int deg = degree(b);
+        int deg_b = degree(b);
+        int deg_r = degree(r);
 
         int x_power;
         uint8_t b_shifted;
         bool x8_monomial = false;
         // actually this assumes final r can only be degree 0
         // maybe change back to inversion
-        int i=0;
-        
-        if (degree(r)<deg) {
-            // here we add the modulus polynomial
-            r = addition(r,m,m);
-            // r now has a "virtual" MODULUS_DEGREE monomial
-            x8_monomial = true;
-
-            x_power = MODULUS_DEGREE-deg;
-            printf("new R: X^8 + \n");
-            display_poly(r);
-        } else {
-            x_power = degree(r)-deg;
-        }
-
-        q = addition(q,1<<x_power,m);
-        printf("B, shift=%d:\n",x_power);
-        display_poly(b);
-        b_shifted = mul_by_Xn(b,x_power,m);
-        printf("B shifted:");
-        if (x8_monomial) {
-            printf(" X^8 + \n");
-        }
-        printf("\n");
-        display_poly(b_shifted);
-        printf("Q after:\n");
-        display_poly(q);
-
-        uint8_t oldr = r;
-        oldq = q;
+        int i=0;        
         
         // TODO: verify (degree(r)>=degree(oldr)&&degree(r)<deg) condition
-        while ((degree(r)<=degree(oldr)||i<2) && (r!=0 || q==0) && i<DEBUG_ITERMAX && (r!=a || i<2)) {
-            oldr = r;
-            oldq = q;
-
-            // if (degree(r)<deg) {
-            //     // here we add the modulus polynomial
-            //     r = addition(r,m,m);
-            //     // r now has a "virtual" MODULUS_DEGREE monomial
-            //     x8_monomial = true;
-
-                // x_power = MODULUS_DEGREE-deg;
-            //     printf("new R: X^8 + \n");
-            //     display_poly(r);
-            // } else {
-                x_power = degree(r)-deg;
-            // }
-
+        while (deg_r>=deg_b && i<DEBUG_ITERMAX) {
+            
+            x_power = deg_r-deg_b;
+            
             q = addition(q,1<<x_power,m);
-            printf("B, shift=%d:\n",x_power);
-            display_poly(b);
+            // printf("B, shift=%d:\n",x_power);
+            // display_poly(b);
             b_shifted = mul_by_Xn(b,x_power,m);
-            printf("B shifted:");
-            if (x8_monomial) {
-                printf(" X^8 + \n");
-            }
-            printf("\n");
+            // printf("B shifted:");
+            // if (x8_monomial) {
+            //     printf(" X^8 + \n");
+            // }
+            // printf("\n");
             display_poly(b_shifted);
-            printf("Q after:\n");
-            display_poly(q);
+            // printf("Q after:\n");
+            // display_poly(q);
 
             // printf("R before:\n");
             // display_poly(r);
             
             // add back modulus to r to cancel "virtual" monomial
-            if (x8_monomial) {
-                printf("Removing X^8...\n");
-                r = substraction(r,m,m);
-                x8_monomial = false;
-            }
+            // if (x8_monomial) {
+            //     printf("Removing X^8...\n");
+            //     r = substraction(r,m,m);
+            //     x8_monomial = false;
+            // }
             r = substraction(r,b_shifted,m);
-            printf("R after:\n");
-            display_poly(r);
-
-            // reset the "virtual" monomial
+            // printf("R after:\n");
+            // display_poly(r);
+            deg_b = degree(b);
+            deg_r = degree(r);
             i++;
         }
         if (i>=DEBUG_ITERMAX || r==1) {
@@ -190,25 +146,10 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
             }
         } else {
             printf("\n*** DIVISION SUCCESS ***\n\n");
-            if (r==0) {
-                return q;
-            }
-            else if (degree(r)>degree(oldr)) {
-                return oldq;
-            } else {
-                return q;
-            }
-
         }
         
     }
-    if (r==1||r==0)
-    {
-        return q;
-    } else
-    {
-        return oldq;
-    }
+    return q;
 }
 
 /*
