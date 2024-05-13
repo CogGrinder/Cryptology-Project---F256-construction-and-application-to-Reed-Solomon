@@ -6,7 +6,7 @@
 
 #define F256_SIZE sizeof(uint8_t)
 #define MODULUS_DEGREE 8
-#define DEBUG_ITERMAX 30
+#define DEBUG_ITERMAX 60
 void display_poly(uint8_t a);
 
 uint8_t random_256(int seed){
@@ -85,6 +85,7 @@ uint8_t inverse(uint8_t a, uint8_t m) {
 
 
 uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
+    uint8_t oldq = 0;
     uint8_t q = 0;
     uint8_t r = a;
 
@@ -102,19 +103,53 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
         // actually this assumes final r can only be degree 0
         // maybe change back to inversion
         int i=0;
-        while (r!=0 && i<DEBUG_ITERMAX && (r!=1 || i<2)) {
-            if (degree(r)<deg) {
-                // here we add the modulus polynomial
-                r = addition(r,m,m);
-                // r now has a "virtual" MODULUS_DEGREE monomial
-                x8_monomial = true;
+        
+        if (degree(r)<deg) {
+            // here we add the modulus polynomial
+            r = addition(r,m,m);
+            // r now has a "virtual" MODULUS_DEGREE monomial
+            x8_monomial = true;
 
-                x_power = MODULUS_DEGREE-deg;
-                printf("new R: X^8 + \n");
-                display_poly(r);
-            } else {
+            x_power = MODULUS_DEGREE-deg;
+            printf("new R: X^8 + \n");
+            display_poly(r);
+        } else {
+            x_power = degree(r)-deg;
+        }
+
+        q = addition(q,1<<x_power,m);
+        printf("B, shift=%d:\n",x_power);
+        display_poly(b);
+        b_shifted = mul_by_Xn(b,x_power,m);
+        printf("B shifted:");
+        if (x8_monomial) {
+            printf(" X^8 + \n");
+        }
+        printf("\n");
+        display_poly(b_shifted);
+        printf("Q after:\n");
+        display_poly(q);
+
+        uint8_t oldr = r;
+        oldq = q;
+        
+        // TODO: verify (degree(r)>=degree(oldr)&&degree(r)<deg) condition
+        while ((degree(r)<=degree(oldr)||i<2) && (r!=0 || q==0) && i<DEBUG_ITERMAX && (r!=a || i<2)) {
+            oldr = r;
+            oldq = q;
+
+            // if (degree(r)<deg) {
+            //     // here we add the modulus polynomial
+            //     r = addition(r,m,m);
+            //     // r now has a "virtual" MODULUS_DEGREE monomial
+            //     x8_monomial = true;
+
+                // x_power = MODULUS_DEGREE-deg;
+            //     printf("new R: X^8 + \n");
+            //     display_poly(r);
+            // } else {
                 x_power = degree(r)-deg;
-            }
+            // }
 
             q = addition(q,1<<x_power,m);
             printf("B, shift=%d:\n",x_power);
@@ -155,40 +190,61 @@ uint8_t euclidean_division(uint8_t a, uint8_t b, uint8_t m) {
             }
         } else {
             printf("\n*** DIVISION SUCCESS ***\n\n");
+            if (r==0) {
+                return q;
+            }
+            else if (degree(r)>degree(oldr)) {
+                return oldq;
+            } else {
+                return q;
+            }
+
         }
         
     }
-
-    return q;
+    if (r==1||r==0)
+    {
+        return q;
+    } else
+    {
+        return oldq;
+    }
 }
 
-
 /*
+returns r = gcd(a,b), s, t,
+such that r = s*a + t*b mod m
+*/
 uint8_t* extended_euclidean(uint8_t a, uint8_t b, uint8_t m) {
     // warning: a needs to be bigger than b
     // because they are r0 and r1
-    // and rn is decreasing in degree
-    if (degree(a)<degree(b)) {
-        // switch a and b, old and new
-        temp = a;    a = b;        b = temp;
-        temp = s_old;s_old = s_new;s_new = temp;
-        temp = t_old;t_old = t_new;t_new = temp;
-    }
-
+    // and rn is decreasing in degree for n>=2
+    
     uint8_t s_old=1;
     uint8_t t_old=0;
 
     uint8_t s_new=0;
     uint8_t t_new=1;
+    
+    uint8_t temp;
+    
+    /*if (degree(a)<degree(b)) {
+        // switch a and b, old and new
+        temp = a;    a = b;        b = temp;
+        temp = s_old;s_old = s_new;s_new = temp;
+        temp = t_old;t_old = t_new;t_new = temp;
+    }*/
 
-    uint9_t temp;
-
-    while (b != 0) {
+    int i = 0;
+    while (b != 0 && i<DEBUG_ITERMAX) {
         // q is a//b
         uint8_t q = euclidean_division(a,b,m);
         temp = b;
         // after this step, new b is smaller than old b
         b = substraction(b,multiplication(q,a,m),m);
+        printf("EUCLIDEAN ALGO NEW B:\n");
+        display_poly(b);
+        printf("\n\n");
         // a becomes b
         a = temp;
 
@@ -199,13 +255,18 @@ uint8_t* extended_euclidean(uint8_t a, uint8_t b, uint8_t m) {
         temp = t_new;
         t_new = substraction(t_old,multiplication(q,t_new,m),m);
         t_old = temp;
+
+        i++;
+        }
     
     uint8_t* ret = malloc(sizeof(uint8_t)*3);
-    ret = {b,s_new,t_new};
+    ret[0] = b; // TODO : a or b ?
+    ret[1] = s_new;
+    ret[2] = t_new;
+
+    printf("RETURNED AT ITERATION %d\n",i);
     return ret;
-    }
 }
-*/
 
 void display_poly(uint8_t a) {
     for (int i = 7; i >= 1; i--)
@@ -313,12 +374,24 @@ int main() {
     printf("Polynomial b/a :\n");
     q = euclidean_division(b,a,modulus_m);
     display_poly(q);
+    printf("r = Gcd(b,a) according to extended Euclidean, followed by s and t:\n");
+    uint8_t* ret = extended_euclidean(b,a,modulus_m);
+    uint8_t r = ret[0];
+    uint8_t s = ret[1];
+    uint8_t t = ret[2];
+
+    display_poly(r);
+    display_poly(s);
+    display_poly(t);
+    printf("Verify that r = s*b + t*a mod m\n");
+    display_poly(addition(multiplication(s,b,modulus_m),multiplication(t,a,modulus_m),modulus_m));
+
     printf("Polynomial b/a*a :\n"); // doesn't work
     display_poly(multiplication(q,a,modulus_m));
     
     time(&end);
 
-    // free();
+    free(ret);
 
     printf("\nCompute time: %lds\n\n\n", end-begin);
     a++;
